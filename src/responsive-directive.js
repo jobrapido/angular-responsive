@@ -8,7 +8,12 @@
       var $window = $windowProvider.$get();
       var winWidth = $window.innerWidth || $window.outerWidth;
       var helper = {
-        //isSmartDevice : isSmartDevice( $window ),
+        isTouch: function() {
+          return ("ontouchstart" in window || window.DocumentTouch && document instanceof DocumentTouch);
+        },
+        isNotTouch: function() {
+          return !this.isTouch();
+        },
         isSmall: function() {
           return winWidth < 768;
         },
@@ -26,9 +31,32 @@
         return helper;
       };
     }])
+  /**
+   * Touch screens (independent from screen size)
+   */
+  .directive('jrResponsiveTouch', ['responsiveHelper', function(responsiveHelper) {
+    return {
+      restrict: 'EAC',
+      transclude: 'element',
+      template: '<div></div>',
+      compile: buildCompileFn('jrResponsiveTouch', responsiveHelper.isTouch)
+    };
+  }])
 
   /**
-   * Extra small devices Phones (<768px)
+   * Non-touch screens (independent from screen size)
+   */
+   .directive('jrResponsiveNotTouch', ['responsiveHelper', function(responsiveHelper) {
+     return {
+       restrict: 'EAC',
+       transclude: 'element',
+       template: '<div></div>',
+       compile: buildCompileFn('jrResponsiveNotTouch', responsiveHelper.isNotTouch)
+     };
+   }])
+
+  /**
+   * Small screens (<768px)
    */
   .directive('jrResponsiveSmall', ['responsiveHelper', function(responsiveHelper) {
     return {
@@ -40,7 +68,7 @@
   }])
 
   /**
-   * Medium devices Desktops (≥992px)
+   * Medium screens (≥768px)
    */
   .directive('jrResponsiveMedium', ['responsiveHelper', function(responsiveHelper) {
     return {
@@ -52,7 +80,7 @@
   }])
 
   /**
-   * Large devices Desktops (≥1200px)
+   * Large screens (>1024px)
    */
   .directive('jrResponsiveLarge', ['responsiveHelper', function(responsiveHelper) {
     return {
@@ -66,7 +94,7 @@
   /**
    * Does the with a match user-specified combination (0..4)
    */
-  .directive('arResponsive', ['responsiveHelper', function(responsiveHelper) {
+  .directive('jrResponsive', ['responsiveHelper', function(responsiveHelper) {
     return {
       restrict: 'EAC',
       transclude: 'element',
@@ -110,9 +138,6 @@
     };
   }
 
-  /**
-   * Partial application for DRY construction of function to scan of any valid responsive types
-   */
   function checkAllTypes(responsiveHelper) {
     return function(deviceTypes) {
       return (deviceTypes['small'] && responsiveHelper.isSmall()) ||
@@ -120,21 +145,5 @@
         (deviceTypes['large'] && responsiveHelper.isLarge()) || false;
     };
   }
-
-  /**
-   * Scan to determine if current window is hosted within a `smart` device
-   * @param $window
-   * @returns {boolean}
-   */
-  /*
-  function isSmartDevice( $window )
-  {
-      // Adapted from http://www.detectmobilebrowsers.com
-      var ua = $window['navigator']['userAgent'] || $window['navigator']['vendor'] || $window['opera'];
-
-      // Checks for iOs, Android, Blackberry, Opera Mini, and Windows mobile devices
-      return (/iPhone|iPod|iPad|Silk|Android|BlackBerry|Opera Mini|IEMobile/).test(ua);
-  }
-  */
 
 })(window.angular);
