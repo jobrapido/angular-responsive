@@ -18,8 +18,5 @@
     "samples",
     ".gitignore",
     "package.json"
-  ],
-  "dependencies": {
-    "angular-route": "~1.2.13"
-  }
+  ]
 }
